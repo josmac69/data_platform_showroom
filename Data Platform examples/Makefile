@@ -17,7 +17,11 @@ start:
 # Stop the Minikube cluster
 stop:
 	kubectl delete all --all
-	helm delete --purge $(helm list --all --short)
+	@if [[ $(helm list --all --short|wc -l) -gt 0 ]]; then \
+		helm delete $(helm list --all --short); \
+	else \
+		echo "No Helm charts found."; \
+	fi
 
 	minikube stop -p $(MINIKUBE_PROFILE)
 
