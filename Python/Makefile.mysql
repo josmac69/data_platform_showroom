@@ -1,0 +1,42 @@
+
+.PHONY: start-mysql stop-mysql remove-mysql show-mysql mysql-not-running mysql-shell
+
+MYSQL_CONTAINER = mysql-container
+MYSQL_ROOT_PASSWORD = password
+
+start-mysql:
+ifeq ($(shell docker ps -aqf name=$(MYSQL_CONTAINER)),)
+	docker run --name $(MYSQL_CONTAINER) -p 3306:3306 -e MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD) -d mysql
+else
+	@${MAKE} -s show-mysql
+endif
+
+stop-mysql:
+ifeq ($(shell docker ps -aqf name=$(MYSQL_CONTAINER)),)
+	@${MAKE} -s mysql-not-running
+else
+	docker stop $(MYSQL_CONTAINER)
+endif
+
+remove-mysql:
+ifeq ($(shell docker ps -aqf name=$(MYSQL_CONTAINER)),)
+	@${MAKE} -s mysql-not-running
+else
+	docker rm $(MYSQL_CONTAINER)
+endif
+
+mysql-shell: ## Open an interactive shell inside the MySQL container
+ifeq ($(shell docker ps -aqf name=$(MYSQL_CONTAINER)),)
+	@${MAKE} -s mysql-not-running
+else
+	docker exec -it $(MYSQL_CONTAINER) /bin/bash
+endif
+
+show-mysql:
+	@echo "MySQL container is already running"
+	docker ps -f name=$(MYSQL_CONTAINER)
+
+mysql-not-running:
+	@echo "MySQL container is not running"
+
+
