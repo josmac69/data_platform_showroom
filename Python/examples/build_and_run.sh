@@ -10,7 +10,7 @@ fi
 cd $1 || { echo "Directory not found."; exit 1; }
 
 # Build the Docker image with the same name as the directory
-docker build -t "python_$1" .
+docker build --no-cache -t "python_$1" .
 echo "Image $1 built successfully. Starting..."
 
 docker run -it "python_$1":latest

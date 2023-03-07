@@ -1,2 +1,4 @@
 protobuf
-kafka-python
+protobuf_to_dict
+person_pb2
+google.protobuf
