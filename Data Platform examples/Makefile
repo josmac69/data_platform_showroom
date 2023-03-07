@@ -5,23 +5,19 @@ MINIKUBE_PROFILE = minikube
 # CONFIG_FILE - yaml config used in the context of specific target
 
 # Define the name of the Kubernetes namespace to use
-NAMESPACE = mynamespace
+NAMESPACE = dp_main
 
-.PHONY: start stop
+.PHONY: minikube-start minikube-stop
 # Start the Minikube cluster and set up the Kubernetes context
-start:
+minikube-start:
 	minikube start -p $(MINIKUBE_PROFILE)
 	minikube update-context -p $(MINIKUBE_PROFILE)
 #	kubectl config set-context --current --namespace=$(NAMESPACE)
 
 # Stop the Minikube cluster
-stop:
+minikube-stop:
+	helm delete $(helm list --all --short);
 	kubectl delete all --all
-	@if [[ $(helm list --all --short|wc -l) -gt 0 ]]; then \
-		helm delete $(helm list --all --short); \
-	else \
-		echo "No Helm charts found."; \
-	fi
 
 	minikube stop -p $(MINIKUBE_PROFILE)
 
@@ -60,3 +56,20 @@ else
 	helm dependency build "./charts/${SW}"
 	rm ${SW}-*.tgz
 endif
+
+helm-install-all: minikube-start
+	helm install dpe-kafka ./charts/kafka
+	helm install dpe-postgresql ./charts/postgresql
+
+.PHONY: postgresql-connect-to-pod postgresql-local-connect
+
+postgresql-connect-to-pod:
+	export POSTGRES_PASSWORD=$(kubectl get secret --namespace default dpe-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+	kubectl run dpe-postgresql-client --rm --tty -i --restart='Never' --namespace default \
+	--image docker.io/bitnami/postgresql:15.2.0-debian-11-r5 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+    --command -- psql --host dpe-postgresql -U postgres -d postgres -p 5432
+
+postgresql-local-connect:
+	export POSTGRES_PASSWORD=$(kubectl get secret --namespace default dpe-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+	kubectl port-forward --namespace default svc/dpe-postgresql 5432:5432 &
+	PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
