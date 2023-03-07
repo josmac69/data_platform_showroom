@@ -48,3 +48,15 @@ endif
 
 show-persistent-volumes:
 	kubectl get pv
+
+.PHONY: helm-add-chart
+
+helm-add-chart:
+ifndef SW
+	@echo "Error: SW not defined."
+else
+	helm pull bitnami/${SW}
+	tar xvf ${SW}-*.tgz -C charts/
+	helm dependency build "./charts/${SW}"
+	rm ${SW}-*.tgz
+endif
