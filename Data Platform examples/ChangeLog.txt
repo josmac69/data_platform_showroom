@@ -1,4 +1,39 @@
 
+
+#### 2023-03-09 19:55
+
+./opt/bitnami/kafka/bin/kafka-leader-election.sh
+./opt/bitnami/kafka/bin/kafka-features.sh
+./opt/bitnami/kafka/bin/kafka-configs.sh
+./opt/bitnami/kafka/bin/kafka-storage.sh
+./opt/bitnami/kafka/bin/kafka-verifiable-producer.sh
+./opt/bitnami/kafka/bin/kafka-server-start.sh
+./opt/bitnami/kafka/bin/kafka-delegation-tokens.sh
+./opt/bitnami/kafka/bin/kafka-topics.sh
+./opt/bitnami/kafka/bin/kafka-console-consumer.sh
+./opt/bitnami/kafka/bin/kafka-console-producer.sh
+./opt/bitnami/kafka/bin/kafka-cluster.sh
+./opt/bitnami/kafka/bin/kafka-acls.sh
+./opt/bitnami/kafka/bin/kafka-reassign-partitions.sh
+./opt/bitnami/kafka/bin/kafka-run-class.sh
+./opt/bitnami/kafka/bin/kafka-metadata-quorum.sh
+./opt/bitnami/kafka/bin/kafka-producer-perf-test.sh
+./opt/bitnami/kafka/bin/kafka-dump-log.sh
+./opt/bitnami/kafka/bin/kafka-consumer-perf-test.sh
+./opt/bitnami/kafka/bin/kafka-broker-api-versions.sh
+./opt/bitnami/kafka/bin/kafka-transactions.sh
+./opt/bitnami/kafka/bin/kafka-server-stop.sh
+./opt/bitnami/kafka/bin/kafka-get-offsets.sh
+./opt/bitnami/kafka/bin/kafka-log-dirs.sh
+./opt/bitnami/kafka/bin/kafka-streams-application-reset.sh
+./opt/bitnami/kafka/bin/kafka-delete-records.sh
+./opt/bitnami/kafka/bin/kafka-verifiable-consumer.sh
+./opt/bitnami/kafka/bin/kafka-metadata-shell.sh
+./opt/bitnami/kafka/bin/kafka-consumer-groups.sh
+./opt/bitnami/kafka/bin/kafka-mirror-maker.sh
+./opt/bitnami/kafka/bin/kafka-replica-verification.sh
+./opt/bitnami/scripts/kafka-env.sh
+
 #### 2023-03-07 11:25
 
 josef@josef-T7-V20-5:~/Learning/Data Platform examples (main) $ helm install dpe-kafka ./charts/kafka
