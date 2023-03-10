@@ -7,7 +7,12 @@ MINIKUBE_PROFILE = minikube
 # Define the name of the Kubernetes namespace to use
 NAMESPACE = dp_main
 
-.PHONY: full-start full-stop minikube-start minikube-stop minikube-logs
+.PHONY: \
+	full-start \
+	full-stop \
+	minikube-start \
+	minikube-stop \
+	minikube-logs
 
 full-start: minikube-start
 	helm install dpe-kafka ./charts/kafka
@@ -31,7 +36,10 @@ minikube-logs:
 	minikube logs|less
 
 # persistent disks commands
-.PHONY: create-persistent-volumes delete-persistent-volumes show-persistent-volumes
+.PHONY: \
+	create-persistent-volumes \
+	delete-persistent-volumes \
+	show-persistent-volumes
 
 create-persistent-volumes:
 ifndef CONFIG_FILE
@@ -66,34 +74,49 @@ else
 	rm ${SW}-*.tgz
 endif
 
-.PHONY: postgresql-direct-pod-connect postgresql-local-client-connect postgresql-client-pod-connect
+.PHONY: \
+	postgresql-direct-pod-psql \
+	postgresql-direct-pod-bash \
+	postgresql-local-client \
+	postgresql-client-pod-psql
 
-postgresql-direct-pod-connect:
+postgresql-direct-pod-psql:
+	export POSTGRES_PASSWORD=$$(kubectl get secret --namespace default dpe-postgresql \
+		-o jsonpath="{.data.postgres-password}" | base64 -d); \
+	echo "postgres password: $$POSTGRES_PASSWORD"; \
+	export POSTGRES_POD=$$(kubectl get pods -o name | grep 'postgres' | sed 's/^pod\///'); \
+	kubectl exec $$POSTGRES_POD -it --namespace default \
+	-- bash -c "/opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash & \
+	PGPASSWORD=$$POSTGRES_PASSWORD psql -U postgres -d postgres -p 5432"
+
+postgresql-direct-pod-bash:
 	export POSTGRES_PASSWORD=$$(kubectl get secret --namespace default dpe-postgresql \
 		-o jsonpath="{.data.postgres-password}" | base64 -d); \
 	export POSTGRES_POD=$$(kubectl get pods -o name | grep 'postgres' | sed 's/^pod\///'); \
 	echo "postgres password: $$POSTGRES_PASSWORD"; \
 	kubectl exec $$POSTGRES_POD -it --namespace default \
-	-- bash -c "/opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash & \
-	PGPASSWORD=$$POSTGRES_PASSWORD psql -U postgres -d postgres -p 5432"
+	-- bash -c "PGPASSWORD=$$POSTGRES_PASSWORD /opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash"
 
-postgresql-client-pod-connect:
+postgresql-client-pod-psql:
 	export POSTGRES_PASSWORD=$$(kubectl get secret --namespace default dpe-postgresql \
 		-o jsonpath="{.data.postgres-password}" | base64 -d); \
 	echo "postgres password: $$POSTGRES_PASSWORD"; \
 	kubectl run dpe-postgresql-client --rm --tty -i --restart='Never' --namespace default \
-	--image docker.io/bitnami/postgresql:15.2.0-debian-11-r5 --env="PGPASSWORD=$$POSTGRES_PASSWORD" \
+	--image docker.io/bitnami/postgresql:latest --env="PGPASSWORD=$$POSTGRES_PASSWORD" \
 	-- bash -c "/opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash & \
 	psql --host dpe-postgresql -U postgres -d postgres -p 5432"
 
-postgresql-local-client-connect:
+postgresql-local-client:
 	export POSTGRES_PASSWORD=$$(kubectl get secret --namespace default dpe-postgresql \
 		-o jsonpath="{.data.postgres-password}" | base64 -d)
 	echo $$POSTGRES_PASSWORD
 	kubectl port-forward --namespace default svc/dpe-postgresql 5432:5432 &
 	PGPASSWORD="$$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
 
-.PHONY: docker-full-stop kafka-start-producer kafka-start-consumer
+.PHONY: \
+	docker-full-stop \
+	kafka-start-producer \
+	kafka-start-consumer
 
 docker-full-stop:
 	sudo systemctl stop docker.service
@@ -103,7 +126,9 @@ kafka-start-producer:
 	@if kubectl get pod dpe-kafka-client -o name 2>/dev/null | grep -q pod; then \
 		echo "Pod dpe-kafka-client exists"; \
 	else \
-	    kubectl run dpe-kafka-client --restart='Never' --image docker.io/bitnami/kafka:3.4.0-debian-11-r6 --namespace default --command -- sleep infinity; \
+	    kubectl run dpe-kafka-client --restart='Never' \
+		--image docker.io/bitnami/kafka:3.4.0-debian-11-r6 \
+		--namespace default --command -- sleep infinity; \
 	fi
 	kubectl exec dpe-kafka-client --namespace default \
 			-- bash -c "kafka-console-producer.sh \
@@ -114,10 +139,21 @@ kafka-start-consumer:
 	@if kubectl get pod dpe-kafka-client -o name 2>/dev/null | grep -q pod; then \
 		echo "Pod dpe-kafka-client exists"; \
 	else \
-	    kubectl run dpe-kafka-client --restart='Never' --image docker.io/bitnami/kafka:3.4.0-debian-11-r6 --namespace default --command -- sleep infinity; \
+		kubectl run dpe-kafka-client --restart='Never' \
+		--image docker.io/bitnami/kafka:3.4.0-debian-11-r6 \
+		--namespace default --command -- sleep infinity; \
 	fi
 	kubectl exec dpe-kafka-client --namespace default \
 			-- bash -c "kafka-console-consumer.sh \
             --bootstrap-server dpe-kafka.default.svc.cluster.local:9092 \
             --topic data_ingestion \
             --from-beginning"
+
+.PHONY: docker-build
+
+docker-build:
+	$(info Running build of $(DIRECTORY))
+	cd ./images/$(DIRECTORY); \
+	docker build -t $(DIRECTORY) .
+	docker tag $(DIRECTORY) josmac69berlin/$(DIRECTORY):latest
+	docker push josmac69berlin/$(DIRECTORY):latest
