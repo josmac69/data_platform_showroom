@@ -11,7 +11,8 @@ NAMESPACE = dp_main
 
 full-start: minikube-start
 	helm install dpe-kafka ./charts/kafka
-	helm install dpe-postgresql ./charts/postgresql -f ./decrypted/values.yaml -f ./decrypted/secrets.yaml
+	helm install dpe-postgresql ./charts/postgresql
+#	-f ./decrypted/values.yaml -f ./decrypted/secrets.yaml
 
 full-stop:
 #	helm delete $(helm list --all --short)
@@ -65,17 +66,27 @@ else
 	rm ${SW}-*.tgz
 endif
 
-.PHONY: postgresql-pod-connect postgresql-local-connect
+.PHONY: postgresql-direct-pod-connect postgresql-local-client-connect postgresql-client-pod-connect
 
-postgresql-pod-connect:
+postgresql-direct-pod-connect:
+	export POSTGRES_PASSWORD=$$(kubectl get secret --namespace default dpe-postgresql \
+		-o jsonpath="{.data.postgres-password}" | base64 -d); \
+	export POSTGRES_POD=$$(kubectl get pods -o name | grep 'postgres' | sed 's/^pod\///'); \
+	echo "postgres password: $$POSTGRES_PASSWORD"; \
+	kubectl exec $$POSTGRES_POD -it --namespace default \
+	-- bash -c "/opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash & \
+	PGPASSWORD=$$POSTGRES_PASSWORD psql -U postgres -d postgres -p 5432"
+
+postgresql-client-pod-connect:
 	export POSTGRES_PASSWORD=$$(kubectl get secret --namespace default dpe-postgresql \
 		-o jsonpath="{.data.postgres-password}" | base64 -d); \
 	echo "postgres password: $$POSTGRES_PASSWORD"; \
 	kubectl run dpe-postgresql-client --rm --tty -i --restart='Never' --namespace default \
 	--image docker.io/bitnami/postgresql:15.2.0-debian-11-r5 --env="PGPASSWORD=$$POSTGRES_PASSWORD" \
-	--command -- psql --host dpe-postgresql -U postgres -d postgres -p 5432
+	-- bash -c "/opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash & \
+	psql --host dpe-postgresql -U postgres -d postgres -p 5432"
 
-postgresql-local-connect:
+postgresql-local-client-connect:
 	export POSTGRES_PASSWORD=$$(kubectl get secret --namespace default dpe-postgresql \
 		-o jsonpath="{.data.postgres-password}" | base64 -d)
 	echo $$POSTGRES_PASSWORD
