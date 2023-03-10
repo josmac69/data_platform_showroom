@@ -18,6 +18,7 @@ full-start: minikube-start
 	helm install dpe-kafka ./charts/kafka
 	helm install dpe-postgresql ./charts/postgresql
 #	-f ./decrypted/values.yaml -f ./decrypted/secrets.yaml
+	helm install dpe-python-dev ./charts/python_dev
 
 full-stop:
 #	helm delete $(helm list --all --short)
@@ -78,7 +79,8 @@ endif
 	postgresql-direct-pod-psql \
 	postgresql-direct-pod-bash \
 	postgresql-local-client \
-	postgresql-client-pod-psql
+	postgresql-client-pod-psql \
+	python-direct-pod-bash
 
 postgresql-direct-pod-psql:
 	export POSTGRES_PASSWORD=$$(kubectl get secret --namespace default dpe-postgresql \
@@ -112,6 +114,15 @@ postgresql-local-client:
 	echo $$POSTGRES_PASSWORD
 	kubectl port-forward --namespace default svc/dpe-postgresql 5432:5432 &
 	PGPASSWORD="$$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
+
+python-direct-pod-bash:
+	export POSTGRES_PASSWORD=$$(kubectl get secret --namespace default dpe-postgresql \
+		-o jsonpath="{.data.postgres-password}" | base64 -d); \
+	export PYTHON_POD=$$(kubectl get pods -o name | grep 'python' | sed 's/^pod\///'); \
+	echo "postgres password: $$POSTGRES_PASSWORD"; \
+	echo "python pod: $$PYTHON_POD"; \
+	kubectl exec "$$PYTHON_POD" -it --namespace default \
+	-- bash -c "PGPASSWORD=$$POSTGRES_PASSWORD"
 
 .PHONY: \
 	docker-full-stop \
