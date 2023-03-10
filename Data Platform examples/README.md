@@ -53,3 +53,6 @@
     - fully stop docker:
         - sudo systemctl stop docker
         - sudo systemctl stop docker.socket
+
+* secrets:
+    - echo -n 'MY_SECRET' | base64
