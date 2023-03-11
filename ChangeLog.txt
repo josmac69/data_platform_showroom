@@ -1,4 +1,38 @@
 
+#### 2023-03-11 18:00
+
+helm install dpe-airflow ./charts/airflow
+NAME: dpe-airflow
+LAST DEPLOYED: Sat Mar 11 16:25:08 2023
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: airflow
+CHART VERSION: 14.0.13
+APP VERSION: 2.5.1
+
+** Please be patient while the chart is being deployed **
+
+Airflow can be accessed via port 8080 on the following DNS name from within your cluster:
+
+    dpe-airflow.default.svc.cluster.local
+
+To connect to Airflow from outside the cluster, perform the following steps:
+
+1.  Create a port-forward to the service:
+
+    kubectl port-forward --namespace default svc/dpe-airflow 8080:8080 &
+    echo "Airflow URL: http://127.0.0.1:8080"
+
+2. Open a browser and access Airflow using the obtained URL.
+
+3. Get your Airflow login credentials by running:
+
+    export AIRFLOW_PASSWORD=$(kubectl get secret --namespace "default" dpe-airflow -o jsonpath="{.data.airflow-password}" | base64 -d)
+    echo User:     user
+    echo Password: $AIRFLOW_PASSWORD
 
 #### 2023-03-09 19:55
 

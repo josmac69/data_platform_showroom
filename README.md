@@ -25,6 +25,7 @@
 
 * [Install minikube](https://minikube.sigs.k8s.io/docs/start/)
     - [how to remove minikube](https://stackoverflow.com/questions/66016567/how-to-uninstall-minikube-from-ubuntu-i-get-an-unable-to-load-cached-images-e)
+    - configure minikube in `~/.minikube/config/config.json` file - `{ "cpus": 4, "memory": 8192 }` or similar based on what you need
 
 * [Install Helm](https://helm.sh/docs/intro/install/)
 
@@ -40,6 +41,10 @@
 * [Install Grafana](https://bitnami.com/stack/grafana/helm)
 
 
+#### Useful links
+
+* https://github.com/skhatri/airflow-by-example
+*
 
 
 #### Useful commands

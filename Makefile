@@ -18,7 +18,7 @@ full-start: minikube-start
 	helm install dpe-kafka ./charts/kafka
 	helm install dpe-postgresql ./charts/postgresql
 	helm install dpe-airflow ./charts/airflow
-	helm install dpe-python-dev ./charts/python_dev
+	helm install dpe-pythondev ./charts/pythondev
 
 full-stop:
 #	helm delete $(helm list --all --short)
@@ -80,7 +80,8 @@ endif
 	postgresql-direct-pod-bash \
 	postgresql-local-client \
 	postgresql-client-pod-psql \
-	python-direct-pod-bash
+	python-direct-pod-bash \
+	airflow-browser-connect
 
 postgresql-direct-pod-psql:
 	export POSTGRES_PASSWORD=$$(kubectl get secret --namespace default dpe-postgresql \
@@ -123,6 +124,13 @@ python-direct-pod-bash:
 	echo "python pod: $$PYTHON_POD"; \
 	kubectl exec "$$PYTHON_POD" -it --namespace default \
 	-- bash -c "PGPASSWORD=$$POSTGRES_PASSWORD"
+
+airflow-browser-connect:
+	kubectl port-forward --namespace default svc/dpe-airflow 8080:8080 &
+	export AIRFLOW_PASSWORD=$$(kubectl get secret --namespace "default" dpe-airflow -o jsonpath="{.data.airflow-password}" | base64 -d)
+	echo User:     user
+	echo Password: $$AIRFLOW_PASSWORD
+	echo "Airflow URL: http://127.0.0.1:8080"
 
 .PHONY: \
 	docker-full-stop \

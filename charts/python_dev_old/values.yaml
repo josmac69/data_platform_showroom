@@ -1,4 +1,0 @@
-image:
-  registry: docker.io
-  repository: josmac69berlin/dpe_python_dev
-  tag: latest
