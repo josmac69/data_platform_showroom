@@ -17,7 +17,7 @@ NAMESPACE = dp_main
 full-start: minikube-start
 	helm install dpe-kafka ./charts/kafka
 	helm install dpe-postgresql ./charts/postgresql
-#	-f ./decrypted/values.yaml -f ./decrypted/secrets.yaml
+	helm install dpe-airflow ./charts/airflow
 	helm install dpe-python-dev ./charts/python_dev
 
 full-stop:
