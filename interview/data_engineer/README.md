@@ -24,28 +24,22 @@ Important Data Engineering Interview Questions:
 18. What is Apache Spark? How is it used in data engineering?
 19. How would you handle the processing of a large dataset that cannot fit into the memory of a single machine?
 20. Can you explain what Lambda & Kappa Architecture is and its components?
-• What are the different types of NoSQL databases? When would you use each one?
-• Can you explain data serialization and its importance in data engineering?
-• How do you ensure data consistency in a distributed system?
-• What is the difference between a data lake, a data warehouse, and a data mart?
-• What is the role of an ORM in data engineering?
-• How do you monitor the performance of a data pipeline?
-• What is event-driven processing and why is it important in data engineering?
-• What is eventual consistency in a distributed database system?
-• Explain the differences between batch processing and stream processing.
-• How would you ensure data durability in your data pipeline?
-• What is schema-on-read versus schema-on-write?
-• What is data wrangling or data munging?
-• Can you explain the concept of data lineage?
-• How would you design a system to process data in parallel?
-• Explain the concept of Data Virtualization.
-• Can you explain the purpose of a data dictionary?
-• How would you handle data redundancy issues in your data pipeline?
-• Describe the MapReduce programming model.
-• How would you approach designing a new data pipeline from scratch?
-
-Remember, these are not questions with definitive answers but rather serve as a foundation for understanding a candidate's knowledge and experience.
-
-A good interview will not only test the technical knowledge but also the ability to apply that knowledge in problem-solving, as well
-
-gif credit- Lakshmi Shiva Ganesh Sontenam on medium
+21. What are the different types of NoSQL databases? When would you use each one?
+22. Can you explain data serialization and its importance in data engineering?
+23. How do you ensure data consistency in a distributed system?
+24. What is the difference between a data lake, a data warehouse, and a data mart?
+25. What is the role of an ORM in data engineering?
+26. How do you monitor the performance of a data pipeline?
+27. What is event-driven processing and why is it important in data engineering?
+28. What is eventual consistency in a distributed database system?
+29. Explain the differences between batch processing and stream processing.
+30. How would you ensure data durability in your data pipeline?
+31. What is schema-on-read versus schema-on-write?
+32. What is data wrangling or data munging?
+33. Can you explain the concept of data lineage?
+34. How would you design a system to process data in parallel?
+35. Explain the concept of Data Virtualization.
+36. Can you explain the purpose of a data dictionary?
+37. How would you handle data redundancy issues in your data pipeline?
+38. Describe the MapReduce programming model.
+39. How would you approach designing a new data pipeline from scratch?
